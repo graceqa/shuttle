@@ -1,0 +1,86 @@
+:root {
+  --font-family-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Signature Reversed Palette: Primarily Powdery Pink (#ef93b4) with Deep Green (#004c4c) Accents */
+  --color-pink-powder: #ef93b4;
+  --color-pink-vibrant: #e77ea4;
+  --color-pink-light: #fdf2f7;
+  --color-pink-subtle: #fbe5ef;
+  --color-pink-surface: #f8d3e2;
+  --color-pink-deep: #b34b71;
+  --color-pink-border: #f3acc6;
+  --color-pink-glow: rgba(239, 147, 180, 0.35);
+
+  --color-green-deep: #004c4c;
+  --color-green-dark: #003636;
+  --color-green-soft: #0a5f5f;
+  --color-green-mint: #0f766e;
+  --color-green-glow: rgba(0, 76, 76, 0.2);
+
+  /* Semantic UI Tokens */
+  --bg-app: #fcf1f6;
+  --bg-card: #ffffff;
+  --bg-surface: #fdf3f8;
+  --bg-surface-subtle: #fae4ee;
+  --border-subtle: #f4b6cb;
+  --border-focus: #004c4c;
+
+  --text-main: #003838;
+  --text-muted: #134e4e;
+  --text-dim: #446f6f;
+
+  --primary: #ef93b4;
+  --primary-glow: rgba(239, 147, 180, 0.35);
+  --primary-hover: #e57ea3;
+  --primary-deep: #004c4c;
+
+  --accent-green: #004c4c;
+  --accent-green-bg: rgba(0, 76, 76, 0.08);
+  --accent-amber: #b45309;
+  --accent-amber-bg: rgba(245, 158, 11, 0.12);
+  --accent-rose: #be185d;
+  --accent-rose-bg: rgba(244, 63, 94, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 2px 6px rgba(239, 147, 180, 0.25);
+  --shadow-md: 0 6px 18px rgba(0, 76, 76, 0.08), 0 2px 10px rgba(239, 147, 180, 0.25);
+  --shadow-lg: 0 16px 40px rgba(239, 147, 180, 0.28), 0 4px 16px rgba(0, 76, 76, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--bg-app);
+  background-image: 
+    radial-gradient(circle at 12% 8%, #fce7f1 0%, transparent 45%),
+    radial-gradient(circle at 88% 92%, #f8d4e4 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, #fdf2f7 0%, transparent 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
