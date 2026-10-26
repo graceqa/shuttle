@@ -1,10 +1,12 @@
 import React from 'react';
 import { DayType } from '../types';
+import { HolidayInfo } from '../utils/holidayUtils';
 
 interface HeaderProps {
   currentDayName: string;
   currentDayType: DayType;
   currentTimeStr: string;
+  activeHoliday?: HolidayInfo | null;
   onOpenFullSchedule: () => void;
 }
 
@@ -12,6 +14,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentDayName,
   currentDayType,
   currentTimeStr,
+  activeHoliday,
   onOpenFullSchedule,
 }) => {
   return (
@@ -55,9 +58,15 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="clock-time">{currentTimeStr}</span>
         </div>
         <div className="day-badge-container">
-          <span className={`day-pill ${currentDayType}`}>
-            {currentDayName} ({currentDayType === 'weekday' ? 'Weekday Schedule' : 'Weekend Schedule'})
-          </span>
+          {activeHoliday ? (
+            <span className={`day-pill holiday-pill ${activeHoliday.type}`}>
+              {activeHoliday.name} ({activeHoliday.type === 'no_service' ? 'No Service' : 'Weekend Schedule'})
+            </span>
+          ) : (
+            <span className={`day-pill ${currentDayType}`}>
+              {currentDayName} ({currentDayType === 'weekday' ? 'Weekday Schedule' : 'Weekend Schedule'})
+            </span>
+          )}
         </div>
       </div>
     </header>

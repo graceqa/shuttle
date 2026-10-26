@@ -43,6 +43,31 @@ Specifically tailored for residents of **Hampton Court (333 E 102nd St)** travel
 
 ---
 
+## 🗓️ Holiday Service Rules
+
+The app dynamically calculates both fixed and floating holidays for any calendar year:
+
+### 🛑 No Shuttle Service Days
+- **New Year's Day** (January 1)
+- **Memorial Day** (Last Monday in May)
+- **Independence Day** (July 4)
+- **Labor Day** (First Monday in September)
+- **Thanksgiving Day** (Fourth Thursday in November)
+- **Christmas Day** (December 25)
+
+*When active, the app indicates service is closed and automatically counts down to the next operating day's resumption.*
+
+### 🗓️ Weekend Schedule Days
+The shuttle operates on its **Weekend Schedule** (10:00 AM start) on:
+- **Martin Luther King Jr. Day** (Third Monday in January)
+- **Presidents' Day** (Third Monday in February)
+- **Juneteenth** (June 19)
+- **Day After Thanksgiving** (Black Friday)
+- **Christmas Eve** (December 24)
+- **New Year's Eve** (December 31)
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites

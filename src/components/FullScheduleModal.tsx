@@ -120,6 +120,35 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
           </div>
         )}
 
+        {/* Holiday Policy Summary */}
+        <div className="modal-breaks-summary modal-holidays-summary">
+          <h4>Building Holiday Policies</h4>
+          <div className="holiday-lists-grid">
+            <div>
+              <strong className="holiday-group-title">🛑 No Shuttle Service</strong>
+              <ul className="holiday-list">
+                <li>New Year's Day (Jan 1)</li>
+                <li>Memorial Day (Last Mon in May)</li>
+                <li>Independence Day (July 4)</li>
+                <li>Labor Day (1st Mon in Sep)</li>
+                <li>Thanksgiving Day (4th Thu in Nov)</li>
+                <li>Christmas Day (Dec 25)</li>
+              </ul>
+            </div>
+            <div>
+              <strong className="holiday-group-title">🗓️ Runs on Weekend Schedule</strong>
+              <ul className="holiday-list">
+                <li>MLK Day (3rd Mon in Jan)</li>
+                <li>Presidents' Day (3rd Mon in Feb)</li>
+                <li>Juneteenth (June 19)</li>
+                <li>Day After Thanksgiving</li>
+                <li>Christmas Eve (Dec 24)</li>
+                <li>New Year's Eve (Dec 31)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div className="modal-footer">
           <p className="modal-policy-note">
             ⚠️ <strong>Notice:</strong> No exceptions to the bus route are permitted. Bus tags must be presented upon boarding.

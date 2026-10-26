@@ -52,6 +52,7 @@ export interface NextDepartureResult {
     tomorrowDayName?: string;
     isLastTripToday?: boolean;
     totalSecondsRemaining: number;
+    departureDate?: string;
   };
   countdown: Countdown;
   upcomingDepartures: Array<{
@@ -64,5 +65,10 @@ export interface NextDepartureResult {
     name: string;
     resumesAt: string;
   } | null;
+  activeHoliday: {
+    name: string;
+    type: 'no_service' | 'weekend_schedule';
+  } | null;
+  isNoServiceDay: boolean;
   isPostService: boolean;
 }

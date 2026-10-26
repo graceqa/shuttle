@@ -10,13 +10,19 @@ export const NextShuttleHero: React.FC<NextShuttleHeroProps> = ({
   departureInfo,
   stopDetails,
 }) => {
-  const { nextDeparture, countdown, activeBreak, isPostService } = departureInfo;
+  const { nextDeparture, countdown, activeBreak, isPostService, isNoServiceDay, activeHoliday } = departureInfo;
 
   // Visual status calculation
   let statusBadgeText = 'On Schedule';
   let statusBadgeType = 'status-normal';
 
-  if (activeBreak) {
+  if (isNoServiceDay && activeHoliday) {
+    statusBadgeText = `No Service (${activeHoliday.name})`;
+    statusBadgeType = 'status-ended';
+  } else if (activeHoliday && activeHoliday.type === 'weekend_schedule') {
+    statusBadgeText = `${activeHoliday.name} (Weekend Sched)`;
+    statusBadgeType = 'status-warning';
+  } else if (activeBreak) {
     statusBadgeText = `${activeBreak.name}`;
     statusBadgeType = 'status-break';
   } else if (isPostService) {
@@ -45,7 +51,11 @@ export const NextShuttleHero: React.FC<NextShuttleHeroProps> = ({
       <div className="hero-content">
         <div className="departure-time-display">
           <div className="departure-label">
-            {nextDeparture.isTomorrow ? `Next Shuttle (${nextDeparture.tomorrowDayName || 'Tomorrow'})` : 'Next Departure'}
+            {isNoServiceDay
+              ? `Service Resumes (${nextDeparture.tomorrowDayName || 'Tomorrow'})`
+              : nextDeparture.isTomorrow
+              ? `Next Shuttle (${nextDeparture.tomorrowDayName || 'Tomorrow'})`
+              : 'Next Departure'}
           </div>
           <div className="time-number">
             {nextDeparture.timeStr}
@@ -53,9 +63,11 @@ export const NextShuttleHero: React.FC<NextShuttleHeroProps> = ({
         </div>
 
         <div className="countdown-display">
-          <div className="countdown-label">Leaves in</div>
+          <div className="countdown-label">
+            {isNoServiceDay ? 'Resumes in' : 'Leaves in'}
+          </div>
           <div className="countdown-value">
-            {isPostService && nextDeparture.isTomorrow ? (
+            {isNoServiceDay || (isPostService && nextDeparture.isTomorrow) ? (
               <span className="countdown-tomorrow">
                 {countdown.hours}h {countdown.minutes}m
               </span>
@@ -70,6 +82,24 @@ export const NextShuttleHero: React.FC<NextShuttleHeroProps> = ({
         </div>
       </div>
 
+      {isNoServiceDay && activeHoliday && (
+        <div className="break-callout night-callout">
+          <span className="break-icon">🛑</span>
+          <span>
+            No shuttle service today in observance of <strong>{activeHoliday.name}</strong>. Regular service resumes on <strong>{nextDeparture.tomorrowDayName || 'Tomorrow'}</strong> at <strong>{nextDeparture.timeStr}</strong>.
+          </span>
+        </div>
+      )}
+
+      {activeHoliday && activeHoliday.type === 'weekend_schedule' && !isNoServiceDay && (
+        <div className="break-callout">
+          <span className="break-icon">🎉</span>
+          <span>
+            Holiday Schedule: Operating on <strong>Weekend Schedule</strong> today for <strong>{activeHoliday.name}</strong>.
+          </span>
+        </div>
+      )}
+
       {activeBreak && (
         <div className="break-callout">
           <span className="break-icon">☕</span>
@@ -79,7 +109,7 @@ export const NextShuttleHero: React.FC<NextShuttleHeroProps> = ({
         </div>
       )}
 
-      {isPostService && (
+      {isPostService && !isNoServiceDay && (
         <div className="break-callout night-callout">
           <span className="break-icon">🌙</span>
           <span>

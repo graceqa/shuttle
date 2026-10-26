@@ -812,6 +812,48 @@
   color: var(--text-dim);
 }
 
+.day-pill.holiday-pill.no_service {
+  background: var(--color-pink-powder);
+  color: #003636;
+  border: 1px solid var(--color-pink-border);
+  box-shadow: 0 2px 6px rgba(239, 147, 180, 0.3);
+}
+
+.day-pill.holiday-pill.weekend_schedule {
+  background: #ffffff;
+  color: var(--color-green-deep);
+  border: 1.5px solid var(--color-pink-powder);
+}
+
+.modal-holidays-summary {
+  border-top: 1px dashed var(--border-subtle);
+  background: #fff8fb;
+}
+
+.holiday-lists-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.holiday-group-title {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-green-deep);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.holiday-list {
+  list-style: none;
+  font-size: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text-dim);
+}
+
 .modal-footer {
   padding: 12px 22px;
   background: var(--bg-card);

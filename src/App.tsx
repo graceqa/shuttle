@@ -35,6 +35,7 @@ export function App() {
           currentDayName={departureInfo.currentDayName}
           currentDayType={departureInfo.currentDayType}
           currentTimeStr={departureInfo.currentTimeStr}
+          activeHoliday={departureInfo.activeHoliday}
           onOpenFullSchedule={() => setIsScheduleOpen(true)}
         />
 

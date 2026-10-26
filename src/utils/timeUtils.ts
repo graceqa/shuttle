@@ -1,5 +1,6 @@
 import { SCHEDULES_BY_DAY_TYPE } from '../data/schedule';
 import { Countdown, DayType, NextDepartureResult, StopId } from '../types';
+import { getHolidayInfo, HolidayInfo } from './holidayUtils';
 
 const DAYS_OF_WEEK = [
   'Sunday',
@@ -12,9 +13,14 @@ const DAYS_OF_WEEK = [
 ];
 
 /**
- * Returns whether the given date is a weekday (Mon-Fri) or weekend (Sat-Sun)
+ * Returns whether the given date uses a 'weekday' or 'weekend' schedule.
+ * If the date is a holiday designated as 'weekend_schedule', it returns 'weekend'.
  */
 export function getDayType(date: Date): DayType {
+  const holiday = getHolidayInfo(date);
+  if (holiday && holiday.type === 'weekend_schedule') {
+    return 'weekend';
+  }
   const day = date.getDay(); // 0 is Sunday, 6 is Saturday
   return day === 0 || day === 6 ? 'weekend' : 'weekday';
 }
@@ -66,9 +72,26 @@ export function formatCurrentTime(date: Date): string {
 }
 
 /**
- * Calculates the next departures, active countdown, breaks, and upcoming shuttles
+ * Finds the next operating calendar day on or after `startDate` that is NOT a no_service holiday.
+ */
+export function getNextOperatingDate(startDate: Date): { date: Date; holiday: HolidayInfo | null } {
+  const candidate = new Date(startDate);
+  candidate.setHours(0, 0, 0, 0);
+
+  while (true) {
+    const holiday = getHolidayInfo(candidate);
+    if (!holiday || holiday.type !== 'no_service') {
+      return { date: candidate, holiday };
+    }
+    candidate.setDate(candidate.getDate() + 1);
+  }
+}
+
+/**
+ * Calculates the next departures, active countdown, breaks, holiday status, and upcoming shuttles
  */
 export function getNextShuttleDepartures(stopId: StopId, now: Date = new Date()): NextDepartureResult {
+  const todayHoliday = getHolidayInfo(now);
   const currentDayType = getDayType(now);
   const currentDayName = getDayName(now);
   const currentTimeStr = formatCurrentTime(now);
@@ -79,6 +102,62 @@ export function getNextShuttleDepartures(stopId: StopId, now: Date = new Date())
   const currentTotalSeconds = hours * 3600 + minutes * 60 + seconds;
   const currentMinuteOfDay = hours * 60 + minutes;
 
+  // CASE 1: Today is a NO SERVICE holiday (e.g. Thanksgiving, Christmas, New Year's Day, etc.)
+  if (todayHoliday && todayHoliday.type === 'no_service') {
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const { date: nextOperatingDay } = getNextOperatingDate(tomorrow);
+
+    const targetDayType = getDayType(nextOperatingDay);
+    const targetDayName = getDayName(nextOperatingDay);
+    const targetSchedule = SCHEDULES_BY_DAY_TYPE[targetDayType][stopId];
+    const firstTargetDep = targetSchedule.departures[0];
+
+    const targetDepTime = new Date(nextOperatingDay);
+    targetDepTime.setHours(Math.floor(firstTargetDep.minutes / 60), firstTargetDep.minutes % 60, 0, 0);
+
+    const totalSecondsRemaining = Math.max(0, Math.floor((targetDepTime.getTime() - now.getTime()) / 1000));
+    const countdown = formatCountdown(totalSecondsRemaining);
+
+    const isTomorrow =
+      nextOperatingDay.getDate() === now.getDate() + 1 &&
+      nextOperatingDay.getMonth() === now.getMonth() &&
+      nextOperatingDay.getFullYear() === now.getFullYear();
+
+    const upcomingList = targetSchedule.departures.slice(1, 4).map((dep) => {
+      const depTime = new Date(nextOperatingDay);
+      depTime.setHours(Math.floor(dep.minutes / 60), dep.minutes % 60, 0, 0);
+      const diffSecs = Math.max(0, Math.floor((depTime.getTime() - now.getTime()) / 1000));
+      return {
+        timeStr: dep.timeStr,
+        minutesUntil: Math.round(diffSecs / 60),
+        isTomorrow,
+        isLastTrip: dep.isLastTrip,
+      };
+    });
+
+    return {
+      currentStopId: stopId,
+      currentDayType,
+      currentDayName,
+      currentTimeStr,
+      nextDeparture: {
+        timeStr: firstTargetDep.timeStr,
+        isTomorrow,
+        tomorrowDayName: targetDayName,
+        isLastTripToday: false,
+        totalSecondsRemaining,
+      },
+      countdown,
+      upcomingDepartures: upcomingList,
+      activeBreak: null,
+      activeHoliday: todayHoliday,
+      isNoServiceDay: true,
+      isPostService: false,
+    };
+  }
+
+  // CASE 2: Today is an operational day (regular weekday, weekend, or weekend_schedule holiday)
   const todaySchedule = SCHEDULES_BY_DAY_TYPE[currentDayType][stopId];
   const departures = todaySchedule.departures;
   const breaks = todaySchedule.breaks;
@@ -96,7 +175,6 @@ export function getNextShuttleDepartures(stopId: StopId, now: Date = new Date())
   }
 
   // Find departures remaining today
-  // A departure is eligible if its departure seconds > currentTotalSeconds
   const upcomingToday = departures.filter(
     (dep) => dep.minutes * 60 > currentTotalSeconds
   );
@@ -129,31 +207,41 @@ export function getNextShuttleDepartures(stopId: StopId, now: Date = new Date())
       countdown,
       upcomingDepartures: upcomingList,
       activeBreak,
+      activeHoliday: todayHoliday,
+      isNoServiceDay: false,
       isPostService: false,
     };
   }
 
-  // If no departures remaining today, calculate rollover to tomorrow
+  // CASE 3: No more departures today -> Rollover to next operating day
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
+  const { date: nextOperatingDay } = getNextOperatingDate(tomorrow);
 
-  const tomorrowDayType = getDayType(tomorrow);
-  const tomorrowDayName = getDayName(tomorrow);
-  const tomorrowSchedule = SCHEDULES_BY_DAY_TYPE[tomorrowDayType][stopId];
-  const firstTomorrowDep = tomorrowSchedule.departures[0];
+  const targetDayType = getDayType(nextOperatingDay);
+  const targetDayName = getDayName(nextOperatingDay);
+  const targetSchedule = SCHEDULES_BY_DAY_TYPE[targetDayType][stopId];
+  const firstTargetDep = targetSchedule.departures[0];
 
-  // Seconds until midnight + seconds into tomorrow
-  const secondsUntilMidnight = 86400 - currentTotalSeconds;
-  const totalSecondsRemaining = secondsUntilMidnight + firstTomorrowDep.minutes * 60;
+  const targetDepTime = new Date(nextOperatingDay);
+  targetDepTime.setHours(Math.floor(firstTargetDep.minutes / 60), firstTargetDep.minutes % 60, 0, 0);
+
+  const totalSecondsRemaining = Math.max(0, Math.floor((targetDepTime.getTime() - now.getTime()) / 1000));
   const countdown = formatCountdown(totalSecondsRemaining);
 
-  const upcomingList = tomorrowSchedule.departures.slice(1, 4).map((dep) => {
-    const totalSecs = secondsUntilMidnight + dep.minutes * 60;
+  const isTomorrow =
+    nextOperatingDay.getDate() === now.getDate() + 1 &&
+    nextOperatingDay.getMonth() === now.getMonth() &&
+    nextOperatingDay.getFullYear() === now.getFullYear();
+
+  const upcomingList = targetSchedule.departures.slice(1, 4).map((dep) => {
+    const depTime = new Date(nextOperatingDay);
+    depTime.setHours(Math.floor(dep.minutes / 60), dep.minutes % 60, 0, 0);
+    const diffSecs = Math.max(0, Math.floor((depTime.getTime() - now.getTime()) / 1000));
     return {
       timeStr: dep.timeStr,
-      minutesUntil: Math.round(totalSecs / 60),
-      isTomorrow: true,
+      minutesUntil: Math.round(diffSecs / 60),
+      isTomorrow,
       isLastTrip: dep.isLastTrip,
     };
   });
@@ -164,15 +252,17 @@ export function getNextShuttleDepartures(stopId: StopId, now: Date = new Date())
     currentDayName,
     currentTimeStr,
     nextDeparture: {
-      timeStr: firstTomorrowDep.timeStr,
-      isTomorrow: true,
-      tomorrowDayName,
+      timeStr: firstTargetDep.timeStr,
+      isTomorrow,
+      tomorrowDayName: targetDayName,
       isLastTripToday: false,
       totalSecondsRemaining,
     },
     countdown,
     upcomingDepartures: upcomingList,
-    activeBreak: null,
+    activeBreak,
+    activeHoliday: todayHoliday,
+    isNoServiceDay: false,
     isPostService: true,
   };
 }
