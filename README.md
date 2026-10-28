@@ -4,6 +4,8 @@ A fast, clean, and responsive web application designed to instantly answer one q
 
 Specifically tailored for residents of **Hampton Court (333 E 102nd St)** traveling to and from **86th St & Lexington Ave**.
 
+Live site: https://graceqa.github.io/shuttle
+
 ---
 
 ## ✨ Features
@@ -95,35 +97,3 @@ npm test
 npm run build
 npm run preview
 ```
-
----
-
-## 📤 Pushing to GitHub
-
-When you're ready to push this project to your GitHub account:
-
-1. Create a new repository on [GitHub](https://github.com/new) (e.g. `shuttle-app` or `hampton-court-shuttle`). Leave it empty (do not check initialize with README, `.gitignore`, or license).
-2. Run the following commands in your terminal:
-
-```bash
-# Set your remote GitHub repository URL
-git remote add origin https://github.com/<your-username>/<your-repo-name>.git
-
-# Ensure default branch is main
-git branch -M main
-
-# Push the repository
-git push -u origin main
-```
-
----
-
-## 🌐 Deploying Online (Free)
-
-### Option 1: Vercel / Netlify
-1. Connect your GitHub repository to [Vercel](https://vercel.com) or [Netlify](https://netlify.com).
-2. Set Build Command to `npm run build` and Output Directory to `dist`.
-3. Deploy! You'll get an instant live HTTPS link you can bookmark on your phone.
-
-### Option 2: GitHub Pages
-In `vite.config.ts`, you can add `base: '/<your-repo-name>/'` and use `gh-pages` or the GitHub Actions static pages workflow to deploy directly from your GitHub repository.
